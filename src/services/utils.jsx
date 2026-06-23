@@ -46,6 +46,15 @@ const utilServices = {
             throw new Error(message);
         }
     },
+    getHospitals: async () => {
+        try {
+            const response = await api.get(`/api/catalogs/v1/hospitals`);
+            return response.data;   
+        } catch (error) {
+            const message = error.response?.data?.message || "Error al obtener el catálogo de hospitales";
+            throw new Error(message);
+        }
+    }
 };
 
 export default utilServices;

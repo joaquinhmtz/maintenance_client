@@ -44,6 +44,7 @@ export default function Doctors() {
   const {
     notification,
     showError,
+    showSuccess,
     closeNotification
   } = useNotification();
   const [total, setTotal] = useState(0);
@@ -58,7 +59,7 @@ export default function Doctors() {
   });
   const [loading, setLoading] = useState(false);
   const [openConfDiag, setOpenConfDiag] = useState(false);
-  const [nameUser, setNameUser] = useState("");
+  const [userInfo, setUserInfo] = useState();
   
   useEffect(() => {
     setLoading(true);
@@ -95,7 +96,8 @@ export default function Doctors() {
 
   const [open, setOpen] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = (params) => {
+    if (params && params.refresh) setFilters({ search: "" });
     setOpen(false);
   };
 
@@ -103,6 +105,19 @@ export default function Doctors() {
     setFilters(params);
     setPagination(prev => ({ ...prev, page: 1 }));
   }
+
+  const handleDelete = async () => {
+    try {
+      const response = await userServices.deleteUser(userInfo._id);
+      showSuccess(`Usuario ${userInfo.name} se ha eliminado correctamente`);
+      setOpenConfDiag(false);
+      setUserInfo({});
+      setFilters({ search: "" });
+    } catch (err) {
+      console.error("Error al eliminar el usuario: ", err);
+      showError("Hubo un error al eliminar el usuario");
+    }
+  };
 
   return (
     <>
@@ -133,7 +148,7 @@ export default function Doctors() {
                   size="small"
                   startIcon={<AddIcon />}
                   sx={{ whiteSpace: "nowrap" }}
-                  onClick={() => setOpen(true)}
+                  onClick={() => { setOpen(true); setUserInfo({}); }}
                 >
                   Nuevo Usuario
                 </Button>
@@ -148,7 +163,7 @@ export default function Doctors() {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        {["Usuario", "Especialidad", "Estado", ""].map(h => (
+                        {["Usuario", "Perfil", "Estado", ""].map(h => (
                           <TableCell key={h}>{h}</TableCell>
                         ))}
                       </TableRow>
@@ -171,8 +186,8 @@ export default function Doctors() {
                             
                             <TableCell>
                               <Chip
-                                label={row.speciality?.value} size="small"
-                                sx={{ ...(ROL_CHIP[row.speciality?.value] || {}), fontWeight: 600, fontSize: 11, borderRadius: 20 }}
+                                label={row.profile?.name} size="small"
+                                sx={{ ...(ROL_CHIP[row.profile?.name] || {}), fontWeight: 600, fontSize: 11, borderRadius: 20 }}
                               />
                             </TableCell>
                             <TableCell>
@@ -183,19 +198,14 @@ export default function Doctors() {
                             </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Editar">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}/editar`)}>
+                                <IconButton size="small" onClick={() => { setOpen(true); setUserInfo({ _id: row._id, fullname: row.fullname }) }}>
                                   <EditIcon fontSize="small" sx={{ color: C.grayBlue }} />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Ver detalle">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}`)}>
-                                  <ViewIcon fontSize="small" sx={{ color: C.grayBlue }} />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Eliminar">
                                 <IconButton 
                                   size="small"
-                                  onClick={() => { setOpenConfDiag(true); setNameUser(row.fullname) }}
+                                  onClick={() => { setOpenConfDiag(true); setUserInfo({ _id: row._id, fullname: row.fullname }) }}
                                 >
                                   <DeleteIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
                                 </IconButton>
@@ -227,6 +237,7 @@ export default function Doctors() {
         open={open}
         onClose={handleClose}
         theme={theme}
+        idUser={userInfo?._id}
       />
 
       {/* Snackbar notification */}
@@ -241,10 +252,11 @@ export default function Doctors() {
       <ConfirmDialog 
         open={openConfDiag}
         title="ELIMINAR DOCTOR"
-        description={`¿Seguro que quieres eliminar el doctor? \n ${nameUser}?`}
+        description={`¿Seguro que quieres eliminar el doctor? \n ${userInfo?.fullname}`}
         textConfirm={"Eliminar"}
         textCancel={"Cancelar"}
-        handleConfirmClose={()=> { setOpenConfDiag(false); setNameUser(""); }}
+        handleClose={handleDelete}
+        handleConfirmClose={()=> { setOpenConfDiag(false); setUserInfo({}); }}
       />
 
     </>

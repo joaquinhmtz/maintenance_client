@@ -90,10 +90,9 @@ const AREA_CHIP = {
     LABORATIO: { bgcolor: "#FFF3CD", color: "#856404" },
 };
 const ROL_CHIP = {
-    Admin: { bgcolor: "#F8D7DA", color: C.danger },
-    General: { bgcolor: C.teal50, color: C.teal700 },
-    Pediátrico: { bgcolor: C.lav50, color: C.lav700 },
-    Especialidad: { bgcolor: "#FFF3CD", color: "#856404" },
+    ADMINISTRADOR: { bgcolor: "#FFF3CD", color: "#856404" },
+    COORDINADOR: { bgcolor: C.teal50, color: C.teal700 },
+    OPERACIÓN: { bgcolor: C.lav50, color: C.lav700 },
 };
 const STATUS = {
     Activo: { dot: C.success, label: "Activo" },
