@@ -1,0 +1,97 @@
+.page-loader {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Spinner */
+.spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+}
+
+/* Animaciones */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Molar */
+.tooth {
+    position: relative;
+    animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* Corona */
+.crown {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 55%;
+    border-radius: 40% 40% 35% 35%;
+}
+
+/* Raíces */
+.root {
+    position: absolute;
+    bottom: 0;
+    width: 28%;
+    height: 50%;
+    border-radius: 0 0 20px 20px;
+}
+
+.root.left {
+    left: 12%;
+    transform: rotate(-6deg);
+}
+
+.root.right {
+    right: 12%;
+    transform: rotate(6deg);
+}
+
+/* Neumorphism para el molar */
+.tooth {
+    position: relative;
+    animation: pulse 1.6s ease-in-out infinite;
+    filter: drop-shadow(6px 6px 12px rgba(0, 0, 0, 0.25))
+            drop-shadow(-6px -6px 12px rgba(255, 255, 255, 0.15));
+  }
+  
+  /* Spinner con profundidad */
+  .spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 4px solid;
+    border-radius: 50%;
+    animation: spin 1.2s linear infinite;
+    box-shadow:
+      6px 6px 14px rgba(0, 0, 0, 0.25),
+      -6px -6px 14px rgba(255, 255, 255, 0.12);
+  }
+  
