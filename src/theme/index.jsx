@@ -47,7 +47,7 @@ const theme = createTheme({
   components: {
     MuiButton: {
       styleOverrides: {
-        root: { textTransform: "none", fontWeight: 600, borderRadius: 20 },
+        root: { textTransform: "none", fontWeight: 600 },
         containedPrimary: { boxShadow: "none", "&:hover": { boxShadow: "none", background: C.teal700 } },
       },
     },

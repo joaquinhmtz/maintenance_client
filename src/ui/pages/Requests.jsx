@@ -23,20 +23,21 @@ import {
 import {
   Edit as EditIcon,
   Visibility as ViewIcon,
-  Delete as DeleteIcon,
+  Cancel as CancelIcon,
   Folder as FolderIcon,
   Add as AddIcon,
 } from "@mui/icons-material";
 import PageHeader from "../components/common/pageHeader";
-import FilterHospitals from "../components/hospitals/FilterHospitals";
+import FilterRequest from "../components/requests/FilterRequest";
 import ModalFormUsers from "../components/users/ModalFormUsers";
 import SkeletonTable from "../components/common/skeletonTable";
-import userServices from '../../services/user';
-import { C, AVA_STYLES, ROL_CHIP, STATUS } from "../../theme/variables";
+import requestServices from "./../../services/request";
+import { C, AVA_STYLES, ROL_CHIP, STATUS, PRIORITIES, PRIORITIES_LABEL, STATUS_REQ } from "../../theme/variables";
 import useNotification from "../../../hooks/useNotification";
 import AppSnackbar from "../components/common/appSnackbar";
 import PaginationCmp from '../components/common/pagination';
 import ConfirmDialog from "../components/common/confirmDialog";
+import GridMetricsReq from "./../components/requests/GridMetricsReq";
 
 export default function Requests() {
 
@@ -47,7 +48,7 @@ export default function Requests() {
     closeNotification
   } = useNotification();
   const [total, setTotal] = useState(0);
-  const [users, setUsers] = useState([]);
+  const [requests, setRequests] = useState([]);
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
     search: ""
@@ -59,37 +60,37 @@ export default function Requests() {
   const [loading, setLoading] = useState(false);
   const [openConfDiag, setOpenConfDiag] = useState(false);
   const [nameUser, setNameUser] = useState("");
-  
+
   useEffect(() => {
     setLoading(true);
-    getCountUsers();
-    getUsers();
+    getCountRequests();
+    getRequests();
   }, [filters, pagination]);
 
-  const getUsers = async () => {
+  const getRequests = async () => {
     try {
-      const response = await userServices.getUsers({ 
+      const response = await requestServices.getRequests({
         search: filters.search,
         page: pagination.page,
         limit: pagination.limit
       });
-      setUsers(response?.data.users || []);
+      setRequests(response?.data.requests || []);
       setLoading(false);
     } catch (err) {
-      console.error("Error al obtener los doctores: ", err);
-      showError("Hubo un error al obtener los doctorres");
+      console.error("Error al obtener las solicitudes: ", err);
+      showError("Hubo un error al obtener las solicitudes");
     }
   }
 
-  const getCountUsers = async () => {
+  const getCountRequests = async () => {
     try {
-      const response = await userServices.getCountUsers({ 
+      const response = await requestServices.getCountRequests({
         search: filters.search
       });
       setTotal(response?.data.count || 0);
     } catch (err) {
-      console.error("Error al obtener el total de doctores: ", err);
-      showError("Hubo un error al obtener el total de doctores");
+      console.error("Error al obtener el total de solicitudes: ", err);
+      showError("Hubo un error al obtener el total de solicitudes");
     }
   }
 
@@ -108,13 +109,15 @@ export default function Requests() {
     <>
       <PageHeader
         title="Solicitudes"
-        subtitle="Lista de solicitudes de trabajo registrados en el sistema"
+        subtitle="Resumen de hoy - lunes 01 de junio 2026"
       />
 
+      <GridMetricsReq />
+
       {/* Filtros de búsqueda */}
-      <FilterHospitals 
-        filters={filters} 
-        setFilters={handleSetFilters} 
+      <FilterRequest
+        filters={filters}
+        setFilters={handleSetFilters}
       />
 
       {/* Tabla de hospitales */}
@@ -129,13 +132,13 @@ export default function Requests() {
               </Box>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <Button
-                  variant="contained"
+                  variant="outlined"
                   size="small"
                   startIcon={<AddIcon />}
                   sx={{ whiteSpace: "nowrap" }}
-                  onClick={() => setOpen(true)}
+                  onClick={() => navigate("/requests/new")}
                 >
-                  Nuevo Hospital
+                  Nueva Solicitud
                 </Button>
               </Box>
             </Box>
@@ -148,49 +151,61 @@ export default function Requests() {
                   <Table size="small">
                     <TableHead>
                       <TableRow>
-                        {["Nombre", "Estado", ""].map(h => (
+                        {["Folio", "Hospital", "Equipo", "Prioridad", "Estatus", "Responsable", ""].map(h => (
                           <TableCell key={h}>{h}</TableCell>
                         ))}
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {users.map(row => {
+                      {requests.map(row => {
                         return (
                           <TableRow key={row._id}>
                             <TableCell>
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
-                                <Avatar sx={{ width: 32, height: 32, fontSize: 11, fontWeight: 600, ...AVA_STYLES[row.speciality?.value.substring(0,1)] }}>
-                                  {row.initials}
-                                </Avatar>
                                 <Box>
-                                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.fullname}</Typography>
-                                  <Typography sx={{ fontSize: 11, color: C.grayBlue }}>{row.email}</Typography>
+                                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.folio}</Typography>
+                                  <Typography sx={{ fontSize: 11, color: C.grayBlue }}>{row.typeService?.name}</Typography>
                                 </Box>
                               </Box>
                             </TableCell>
                             <TableCell>
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
-                                <Box sx={{ width: 7, height: 7, borderRadius: "50%", bgcolor: STATUS[row.active === true ? "Activo" : "No Activo"]?.dot }} />
-                                <Typography sx={{ fontSize: 12 }}>{row.active === true ? "Activo" : "No Activo"}</Typography>
+                              <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.hospital?.name}</Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                                <Box>
+                                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.item?.name}</Typography>
+                                  <Typography variant='body2' sx={{ fontSize: 13, fontWeight: 500, color: C.grayBlue }}>{row.item?.serie}</Typography>
+                                </Box>
                               </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={PRIORITIES_LABEL[row.priority]} size="small"
+                                sx={{ ...(PRIORITIES[row.priority] || {}), fontWeight: 600, fontSize: 11, borderRadius: 20 }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={row.status} size="small"
+                                sx={{ ...(STATUS_REQ[row.status] || {}), fontWeight: 600, fontSize: 11, borderRadius: 20 }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                            <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.responsible?.fullname}</Typography>
                             </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Editar">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}/editar`)}>
+                                <IconButton size="small" onClick={() => navigate(`/requests/edit/${row._id}`)}>
                                   <EditIcon fontSize="small" sx={{ color: C.grayBlue }} />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Ver detalle">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}`)}>
-                                  <ViewIcon fontSize="small" sx={{ color: C.grayBlue }} />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Eliminar">
-                                <IconButton 
+                              <Tooltip title="Cancelar">
+                                <IconButton
                                   size="small"
                                   onClick={() => { setOpenConfDiag(true); setNameUser(row.fullname) }}
                                 >
-                                  <DeleteIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
+                                  <CancelIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
                                 </IconButton>
                               </Tooltip>
                             </TableCell>
@@ -204,7 +219,7 @@ export default function Requests() {
             }
 
             {/* Paginación */}
-            <PaginationCmp 
+            <PaginationCmp
               pagination={pagination}
               setPagination={setPagination}
               limit={pagination.limit}
@@ -231,13 +246,13 @@ export default function Requests() {
       />
 
       {/* Confirmation dialog */}
-      <ConfirmDialog 
+      <ConfirmDialog
         open={openConfDiag}
         title="ELIMINAR DOCTOR"
         description={`¿Seguro que quieres eliminar el doctor? \n ${nameUser}?`}
         textConfirm={"Eliminar"}
         textCancel={"Cancelar"}
-        handleConfirmClose={()=> { setOpenConfDiag(false); setNameUser(""); }}
+        handleConfirmClose={() => { setOpenConfDiag(false); setNameUser(""); }}
       />
 
     </>

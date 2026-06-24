@@ -31,6 +31,8 @@ const C = {
     white: "#FFFFFF",
     slate: "#2E3A3A",
     grayBlue: "#7A9090",
+
+
     success: "#28A745",
     successBg: "#D4EDDA",
     warning: "#FFC107",
@@ -39,6 +41,9 @@ const C = {
     dangerBg: "#F8D7DA",
     info: "#17A2B8",
     infoBg: "#D1ECF1",
+    neutral: "#E0E0E0",
+    neutralBg: "#F5F5F5",
+    extremBg: "#0A0A0A"
 };
 
 const APP_NAME = "Mantenimiento";
@@ -75,6 +80,25 @@ const MENU_SECTIONS = [
     //     ],
     // },
 ];
+
+const PRIORITIES = {
+    HIGH: { bgcolor: "#F8D7DA", color: C.danger },
+    MEDIUM: { bgcolor: C.warningBg, color: C.warning },
+    LOW: { bgcolor: C.successBg, color: C.success }
+};
+
+const PRIORITIES_LABEL = {
+    HIGH: "Alta",
+    MEDIUM: "Media",
+    LOW: "Baja"
+};
+
+const STATUS_REQ = {
+    Nueva: { bgcolor: C.neutral, color: C.slate },
+    Programada: { bgcolor: C.infoBg, color: C.info },
+    Convertida: { bgcolor: C.extremBg, color: C.white },
+    Cancelada: { bgcolor: C.dangerBg, color: C.danger }
+};
 
 const AVA_STYLES = {
     G: { bgcolor: C.lav50, color: C.lav700 },
@@ -118,5 +142,8 @@ export {
     ROL_CHIP,
     STATUS,
     APP_ABV_NAME,
-    AREA_CHIP
+    AREA_CHIP,
+    PRIORITIES,
+    PRIORITIES_LABEL,
+    STATUS_REQ
 }
