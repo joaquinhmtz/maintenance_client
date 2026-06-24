@@ -29,9 +29,9 @@ import {
 } from "@mui/icons-material";
 import PageHeader from "../components/common/pageHeader";
 import FilterHospitals from "../components/hospitals/FilterHospitals";
-import ModalFormUsers from "../components/users/ModalFormUsers";
+import ModalFormHospitals from "../components/hospitals/ModalFormHospitals";
 import SkeletonTable from "../components/common/skeletonTable";
-import userServices from '../../services/user';
+import hospitalServices from '../../services/hospital';
 import { C, AVA_STYLES, ROL_CHIP, STATUS } from "../../theme/variables";
 import useNotification from "../../../hooks/useNotification";
 import AppSnackbar from "../components/common/appSnackbar";
@@ -44,10 +44,11 @@ export default function Hospitals() {
   const {
     notification,
     showError,
+    showSuccess,
     closeNotification
   } = useNotification();
   const [total, setTotal] = useState(0);
-  const [users, setUsers] = useState([]);
+  const [hospitals, setHospitals] = useState([]);
   const navigate = useNavigate();
   const [filters, setFilters] = useState({
     search: ""
@@ -58,22 +59,22 @@ export default function Hospitals() {
   });
   const [loading, setLoading] = useState(false);
   const [openConfDiag, setOpenConfDiag] = useState(false);
-  const [nameUser, setNameUser] = useState("");
+  const [hospInfo, setHospInfo] = useState({});
   
   useEffect(() => {
     setLoading(true);
-    getCountUsers();
-    getUsers();
+    getCounHospitals();
+    getHospitals();
   }, [filters, pagination]);
 
-  const getUsers = async () => {
+  const getHospitals = async () => {
     try {
-      const response = await userServices.getUsers({ 
+      const response = await hospitalServices.getHospitals({ 
         search: filters.search,
         page: pagination.page,
         limit: pagination.limit
       });
-      setUsers(response?.data.users || []);
+      setHospitals(response?.data.hospitals || []);
       setLoading(false);
     } catch (err) {
       console.error("Error al obtener los doctores: ", err);
@@ -81,21 +82,34 @@ export default function Hospitals() {
     }
   }
 
-  const getCountUsers = async () => {
+  const getCounHospitals = async () => {
     try {
-      const response = await userServices.getCountUsers({ 
+      const response = await hospitalServices.getCountHospitals({ 
         search: filters.search
       });
       setTotal(response?.data.count || 0);
     } catch (err) {
-      console.error("Error al obtener el total de doctores: ", err);
-      showError("Hubo un error al obtener el total de doctores");
+      console.error("Error al obtener el total de hospitales: ", err);
+      showError("Hubo un error al obtener el total de hospitales");
     }
   }
 
+  const handleDelete = async () => {
+    try {
+      const response = await hospitalServices.deleteHospital(hospInfo._id);
+      showSuccess(`Hospital ${hospInfo.name} se ha eliminado correctamente`);
+      setOpenConfDiag(false);
+      setItemInfo({});
+    } catch (err) {
+      console.error("Error al eliminar el hospital: ", err);
+      showError("Hubo un error al eliminar el hospital");
+    }
+  };
+
   const [open, setOpen] = useState(false);
 
-  const handleClose = () => {
+  const handleClose = (params) => {
+    if (params && params.refresh) setFilters({ search: "" });
     setOpen(false);
   };
 
@@ -154,7 +168,7 @@ export default function Hospitals() {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {users.map(row => {
+                      {hospitals.map(row => {
                         return (
                           <TableRow key={row._id}>
                             <TableCell>
@@ -163,8 +177,7 @@ export default function Hospitals() {
                                   {row.initials}
                                 </Avatar>
                                 <Box>
-                                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.fullname}</Typography>
-                                  <Typography sx={{ fontSize: 11, color: C.grayBlue }}>{row.email}</Typography>
+                                  <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.name}</Typography>
                                 </Box>
                               </Box>
                             </TableCell>
@@ -176,19 +189,14 @@ export default function Hospitals() {
                             </TableCell>
                             <TableCell align="right">
                               <Tooltip title="Editar">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}/editar`)}>
+                                <IconButton size="small" onClick={() => {setOpen(true); setHospInfo({ _id: row._id, name: row.name })}}>
                                   <EditIcon fontSize="small" sx={{ color: C.grayBlue }} />
-                                </IconButton>
-                              </Tooltip>
-                              <Tooltip title="Ver detalle">
-                                <IconButton size="small" onClick={() => navigate(`/usuarios/${row.id}`)}>
-                                  <ViewIcon fontSize="small" sx={{ color: C.grayBlue }} />
                                 </IconButton>
                               </Tooltip>
                               <Tooltip title="Eliminar">
                                 <IconButton 
                                   size="small"
-                                  onClick={() => { setOpenConfDiag(true); setNameUser(row.fullname) }}
+                                  onClick={() => { setOpenConfDiag(true); setHospInfo({ _id: row._id, name: row.name }) }}
                                 >
                                   <DeleteIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
                                 </IconButton>
@@ -209,17 +217,19 @@ export default function Hospitals() {
               setPagination={setPagination}
               limit={pagination.limit}
               total={total}
+              table={"hospitales"}
             />
 
           </CardContent>
         </Card>
       </Grid>
 
-      {/* Form de doctores */}
-      <ModalFormUsers
+      {/* Form de hospitales */}
+      <ModalFormHospitals
         open={open}
         onClose={handleClose}
         theme={theme}
+        idHospital={hospInfo?._id}
       />
 
       {/* Snackbar notification */}
@@ -233,11 +243,12 @@ export default function Hospitals() {
       {/* Confirmation dialog */}
       <ConfirmDialog 
         open={openConfDiag}
-        title="ELIMINAR DOCTOR"
-        description={`¿Seguro que quieres eliminar el doctor? \n ${nameUser}?`}
+        title="ELIMINAR HOSPITAL"
+        description={`¿Seguro que quieres eliminar el hospital? \n ${hospInfo?.name}`}
         textConfirm={"Eliminar"}
         textCancel={"Cancelar"}
-        handleConfirmClose={()=> { setOpenConfDiag(false); setNameUser(""); }}
+        handleConfirmClose={()=> { setOpenConfDiag(false); setHospInfo({}); }}
+        handleClose={handleDelete}
       />
 
     </>
