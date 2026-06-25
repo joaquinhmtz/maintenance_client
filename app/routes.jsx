@@ -7,6 +7,7 @@ import Calendar from "./../src/ui/pages/Calendar";
 import WorkOrders from "./../src/ui/pages/WorkOrders";
 import Requests from "./../src/ui/pages/Requests";
 import RequestForm from "./../src/ui/pages/forms/RequestForm";
+import RequestDetail from "./../src/ui/pages/RequestDetail";
 import Hospitals from "./../src/ui/pages/Hospitals";
 import Items from "./../src/ui/pages/Items";
 import ItemsForm from "./../src/ui/pages/forms/ItemForm";
@@ -33,6 +34,7 @@ export default function AppRoutes() {
             <Route path="/requests">
               <Route index element={<Requests />} />
               <Route path="new" element={<RequestForm />} />
+              <Route path=":id" element={<RequestDetail />} />
               <Route path="edit/:id" element={<RequestForm isEdit={true} />} />
             </Route>
 

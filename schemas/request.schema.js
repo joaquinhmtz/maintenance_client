@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const requestSchema = z
+const baseRequestSchema = z
     .object({
         hospital: z
             .string()
@@ -21,8 +21,30 @@ export const requestSchema = z
         description: z
             .string()
             .min(1, "La descripción es obligatoria"),
-        
+
         responsible: z
             .string()
-            .min(1, "El responsable es obligatorio"),
-    })
+            .min(1, "El coordinador es obligatorio"),
+        visitDate: z.string().optional(),
+        visitManager: z.string().optional(),
+        action: z.string().optional()
+    });
+
+export const requestSchema = baseRequestSchema.superRefine((data, ctx) => {
+    if (data.action && data.action === "programar") {
+        if (!data.visitDate || data.visitDate === "") {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["visitDate"],
+                message: "La fecha de visita es obligatoria",
+            });
+        }
+        if (!data.visitManager || data.visitManager === "") {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ["visitManager"],
+                message: "El responsable de visita es obligatorio",
+            });
+        }
+    }
+});

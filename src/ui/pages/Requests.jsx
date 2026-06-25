@@ -45,6 +45,7 @@ export default function Requests() {
   const {
     notification,
     showError,
+    showSuccess,
     closeNotification
   } = useNotification();
   const [total, setTotal] = useState(0);
@@ -59,7 +60,7 @@ export default function Requests() {
   });
   const [loading, setLoading] = useState(false);
   const [openConfDiag, setOpenConfDiag] = useState(false);
-  const [nameUser, setNameUser] = useState("");
+  const [reqInfo, setReqInfo] = useState({});
 
   useEffect(() => {
     setLoading(true);
@@ -104,6 +105,26 @@ export default function Requests() {
     setFilters(params);
     setPagination(prev => ({ ...prev, page: 1 }));
   }
+
+  const handleCancel = async () => {
+    try {
+      await requestServices.updateReq(reqInfo._id, {
+        ...reqInfo,
+        hospital: reqInfo.hospital?._id,
+        responsible: reqInfo.responsible?._id,
+        typeService: reqInfo.typeService?._id,
+        item: reqInfo.item?._id,
+        action: "cancel"
+      });
+      showSuccess("La solicitud actualizada correctamente");
+      setOpenConfDiag(false);
+      setReqInfo({});
+      setFilters({ search: "" });
+    } catch (err) {
+      console.error("Error al cancelar la solicitud: ", err);
+      showError("Hubo un error al cancelar la solicitud");
+    }
+  };
 
   return (
     <>
@@ -192,22 +213,31 @@ export default function Requests() {
                               />
                             </TableCell>
                             <TableCell>
-                            <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.responsible?.fullname}</Typography>
+                              <Typography sx={{ fontSize: 13, fontWeight: 600, color: C.slate }}>{row.responsible?.fullname}</Typography>
                             </TableCell>
                             <TableCell align="right">
-                              <Tooltip title="Editar">
-                                <IconButton size="small" onClick={() => navigate(`/requests/edit/${row._id}`)}>
-                                  <EditIcon fontSize="small" sx={{ color: C.grayBlue }} />
+                              <Tooltip title="Ver detalle">
+                                <IconButton size="small" onClick={() => navigate(`/requests/${row._id}`)}>
+                                  <ViewIcon fontSize="small" sx={{ color: C.grayBlue }} />
                                 </IconButton>
                               </Tooltip>
-                              <Tooltip title="Cancelar">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => { setOpenConfDiag(true); setNameUser(row.fullname) }}
-                                >
-                                  <CancelIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
-                                </IconButton>
-                              </Tooltip>
+                              {row.status !== "Cancelada" ? (
+                                <>
+                                  {/* <Tooltip title="Editar">
+                                    <IconButton size="small" onClick={() => navigate(`/requests/edit/${row._id}`)}>
+                                      <EditIcon fontSize="small" sx={{ color: C.grayBlue }} />
+                                    </IconButton>
+                                  </Tooltip> */}
+                                  <Tooltip title="Cancelar">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => { setOpenConfDiag(true); setReqInfo(row) }}
+                                    >
+                                      <CancelIcon fontSize="small" sx={{ color: C.danger, opacity: .7, "&:hover": { opacity: 1 } }} />
+                                    </IconButton>
+                                  </Tooltip>
+                                </>
+                              ) : null}
                             </TableCell>
                           </TableRow>
                         );
@@ -248,11 +278,12 @@ export default function Requests() {
       {/* Confirmation dialog */}
       <ConfirmDialog
         open={openConfDiag}
-        title="ELIMINAR DOCTOR"
-        description={`¿Seguro que quieres eliminar el doctor? \n ${nameUser}?`}
-        textConfirm={"Eliminar"}
-        textCancel={"Cancelar"}
-        handleConfirmClose={() => { setOpenConfDiag(false); setNameUser(""); }}
+        title="CANCELAR SOLICITUD"
+        description={`¿Seguro que quieres cancelar la solicitud? \n ${reqInfo?.folio}`}
+        textConfirm={"Sí, quiero"}
+        textCancel={"Cerrar"}
+        handleClose={handleCancel}
+        handleConfirmClose={() => { setOpenConfDiag(false); setReqInfo({}); }}
       />
 
     </>

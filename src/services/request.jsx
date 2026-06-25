@@ -55,12 +55,12 @@ const requestServices = {
             throw new Error(message);
         }
     },
-    deleteItem: async (_id, params) => {
+    scheduleReq: async (_id, params) => {
         try {
-            const response = await api.delete(`/api/items/v1/delete/${_id}`);
+            const response = await api.delete(`/api/items/v1/schedule/${_id}`);
             return response.data;   
         } catch (error) {
-            const message = error.response?.data?.message || "Error al actualizar el equipo";
+            const message = error.response?.data?.message || "Error al programar solicitud";
             throw new Error(message);
         }
     },

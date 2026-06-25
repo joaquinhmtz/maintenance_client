@@ -10,7 +10,8 @@ import {
     Radio
 } from "@mui/material";
 import {
-    LocationCity as LocationIcon
+    LocationCity as LocationIcon,
+    CalendarMonth as CalendarIcon
 } from "@mui/icons-material";
 import { requestSchema } from "../../../../schemas/request.schema";
 import utilServices from "../../../services/utils";
@@ -31,6 +32,8 @@ export default function RequestForm({ isEdit = false }) {
         watch,
         reset,
         setError,
+        getValues,
+        setValue,
         formState: { errors, isSubmitting }
     } = useForm({
         resolver: zodResolver(requestSchema),
@@ -41,6 +44,8 @@ export default function RequestForm({ isEdit = false }) {
             typeService: "",
             description: "",
             responsible: "",
+            status: "",
+            action: "actualizar"
         }
     });
 
@@ -55,6 +60,7 @@ export default function RequestForm({ isEdit = false }) {
     const [responsibles, setResponsibles] = useState([]);
 
     const hospitalSelected = watch("hospital");
+    const status = getValues("status");
 
     useEffect(() => {
         getHospitals();
@@ -90,13 +96,16 @@ export default function RequestForm({ isEdit = false }) {
 
             reset({
                 folio: item.folio ?? item.folio ?? "",
-                hospital: item.hospital ?? item.hospital ?? "",
-                item: item.item ?? item.item ?? "",
+                hospital: item.hospital && item.hospital._id ? item.hospital._id : "",
+                item: item.item && item.item._id ? item.item._id : "",
                 priority: item.priority ?? item.priority ?? "",
-                typeService: item.typeService ?? item.typeService ?? "",
+                typeService: item.typeService && item.typeService._id ? item.typeService._id : "",
                 description: item.description ?? item.description ?? "",
                 responsible: item.responsible ?? item.responsible ?? "",
+                status: item.status ?? item.status ?? "",
+                action: "actualizar",
             });
+            console.log("control**")
         } catch (err) {
             console.error("Error al cargar la solicitud:", err);
             showError("No se pudo cargar la información de la solicitud");
@@ -136,12 +145,13 @@ export default function RequestForm({ isEdit = false }) {
 
     const onSubmit = async (data) => {
         try {
-            console.log("todo ok")
             setSaving(true);
-
-            if (isEdit) {
+            console.log(data)
+            if (isEdit && action === "actualizar") {
                 await requestServices.updateReq(id, data);
                 showSuccess("La solicitud actualizada correctamente");
+            } else if (isEdit && action === "programar") {
+                await requestServices.scheduleReq(id, data);
             } else {
                 await requestServices.saveReq(data);
                 showSuccess("La solicitud registrada correctamente");
@@ -154,6 +164,18 @@ export default function RequestForm({ isEdit = false }) {
             showError(`Hubo un error al ${isEdit ? "actualizar" : "guardar"} el equipo`);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleToggleAction = () => {
+        const next = !changePassword;
+        setChangePassword(next);
+        setValue("changePassword", next);
+        if (!next) {
+            setValue("password", "");
+            setValue("confirmPassword", "");
+            setShowPwd(false);
+            setShowCPwd(false);
         }
     };
 
@@ -295,15 +317,15 @@ export default function RequestForm({ isEdit = false }) {
                                             control={control}
                                             render={({ field }) => (
                                                 <FormControl fullWidth size="small" error={!!errors.responsible}>
-                                                    <InputLabel>Responsable</InputLabel>
-                                                    <Select 
-                                                        {...field} 
+                                                    <InputLabel>Coordinador</InputLabel>
+                                                    <Select
+                                                        {...field}
                                                         label="Responsable"
                                                         renderValue={(selected) => {
                                                             const responsible = responsibles.find(
                                                                 x => x._id === selected
                                                             );
-                                        
+
                                                             return responsible?.fullname || "";
                                                         }}
                                                     >
@@ -352,90 +374,69 @@ export default function RequestForm({ isEdit = false }) {
                                     </Grid>
                                 </Grid>
 
-                                {/* <SectionLabel icon={<FeedIcon />}>Información del equipo</SectionLabel>
-                                <Grid container spacing={2} style={{ marginTop: 8, marginBottom: 16 }}>
-                                    <Grid item xs={12} md={4}>
-                                        <Controller
-                                            name="name"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <TextField
-                                                    {...field}
-                                                    label="Nombre"
-                                                    fullWidth size="small"
-                                                    error={!!errors.name}
-                                                    helperText={errors.name?.message}
-                                                    placeholder="Ej. Monitor de signos vitales"
-                                                    autoComplete="off"
+                                {status === "Nueva" ? (
+                                    <>
+                                        <SectionLabel icon={<CalendarIcon />}>Programación</SectionLabel>
+                                        <Grid container spacing={2} style={{ marginTop: 8, marginBottom: 16 }}>
+                                            <Grid item xs={12} md={4}>
+                                                <Controller
+                                                    name="visitDate"
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <TextField
+                                                            {...field}
+                                                            label="Fecha de visita"
+                                                            type="date"
+                                                            fullWidth
+                                                            size="small"
+                                                            error={!!errors.visitDate}
+                                                            helperText={errors.visitDate?.message}
+                                                            InputLabelProps={{ shrink: true }}
+                                                        />
+                                                    )}
                                                 />
-                                            )}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <Controller
-                                            name="brand"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <FormControl fullWidth size="small" error={!!errors.brand}>
-                                                    <InputLabel>Marca</InputLabel>
-                                                    <Select {...field} label="Marca">
-                                                        {brands.map(item => (
-                                                            <MenuItem key={item._id} value={item._id}>{item.value}</MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    <FormHelperText>{errors.brand?.message}</FormHelperText>
-                                                </FormControl>
-                                            )}
-                                        />
-                                    </Grid>
-                                    <Grid item xs={12} md={4}>
-                                        <Controller
-                                            name="model"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <FormControl fullWidth size="small" error={!!errors.model}>
-                                                    <InputLabel>Modelo</InputLabel>
-                                                    <Select {...field} label="Modelo">
-                                                        {models.map(item => (
-                                                            <MenuItem key={item._id} value={item._id}>{item.value}</MenuItem>
-                                                        ))}
-                                                    </Select>
-                                                    <FormHelperText>{errors.model?.message}</FormHelperText>
-                                                </FormControl>
-                                            )}
-                                        />
-                                    </Grid>
+                                            </Grid>
+                                            <Grid item xs={12} md={4}>
+                                                <Controller
+                                                    name="visitManager"
+                                                    control={control}
+                                                    render={({ field }) => (
+                                                        <FormControl fullWidth size="small" error={!!errors.visitManager}>
+                                                            <InputLabel>Responsable visita</InputLabel>
+                                                            <Select
+                                                                {...field}
+                                                                label="Responsable visita"
+                                                                renderValue={(selected) => {
+                                                                    const responsible = responsibles.find(
+                                                                        x => x._id === selected
+                                                                    );
 
-                                    <Grid item xs={12} md={4}>
-                                        <Controller
-                                            name="serie"
-                                            control={control}
-                                            render={({ field }) => (
-                                                <TextField
-                                                    {...field}
-                                                    label="No. serie"
-                                                    fullWidth size="small"
-                                                    error={!!errors.serie}
-                                                    helperText={
-                                                        errors.serie?.message
-                                                        ?? (isEdit ? "El número de serie no puede modificarse" : undefined)
-                                                    }
-                                                    placeholder="Ej. CFG-EDE233"
-                                                    autoComplete="off"
-                                                    disabled={isEdit}
-                                                    InputProps={{
-                                                        readOnly: isEdit,
-                                                    }}
-                                                    sx={isEdit ? {
-                                                        "& .MuiInputBase-input.Mui-disabled": {
-                                                            WebkitTextFillColor: C.grayBlue,
-                                                        }
-                                                    } : undefined}
+                                                                    return responsible?.fullname || "";
+                                                                }}
+                                                            >
+                                                                {responsibles.map(item => (
+                                                                    <MenuItem key={item._id} value={item._id}>
+                                                                        <div style={{ display: "flex", flexDirection: "column" }}>
+                                                                            <strong style={{ fontSize: 13 }}>
+                                                                                {item.fullname}
+                                                                            </strong>
+                                                                            <span style={{ fontSize: 12, color: "#666" }}>
+                                                                                {item.profile}
+                                                                            </span>
+                                                                        </div>
+                                                                    </MenuItem>
+                                                                ))}
+                                                            </Select>
+                                                            <FormHelperText>
+                                                                {errors.visitManager?.message}
+                                                            </FormHelperText>
+                                                        </FormControl>
+                                                    )}
                                                 />
-                                            )}
-                                        />
-                                    </Grid>
-                                </Grid> */}
+                                            </Grid>
+                                        </Grid>
+                                    </>
+                                ) : null}
 
                                 <Divider />
 
@@ -453,9 +454,25 @@ export default function RequestForm({ isEdit = false }) {
                                         variant="contained"
                                         disabled={saving || isSubmitting || loading}
                                         startIcon={saving ? <CircularProgress size={14} color="inherit" /> : null}
+                                        onClick={() => setValue("action", "actualizar")}
                                     >
                                         {isEdit ? "Actualizar" : "Guardar"}
                                     </Button>
+                                    {status === "Nueva" ? (
+                                        <Button
+                                            color="secondary"
+                                            form="user-form"
+                                            variant="outlined"
+                                            disabled={saving || isSubmitting || loading}
+                                            startIcon={saving ? <CircularProgress size={14} color="inherit" /> : null}
+                                            onClick={() => {
+                                                setValue("action", "programar"); // 👈 setea la acción
+                                                handleSubmit(onSubmit)();         // 👈 dispara el submit manualmente
+                                            }}
+                                        >
+                                            Programar
+                                        </Button>
+                                    ) : null}
                                 </CardActions>
 
                             </form>
