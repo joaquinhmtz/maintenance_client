@@ -91,14 +91,6 @@ export default function WOCard({
                         </Box>
 
                         <Box sx={{ textAlign: "right", flexShrink: 0 }}>
-                            {status === STATUS_WO.CERRADA && closedAt && (
-                                <>
-                                    <Typography sx={{ fontSize: 11, color: C.midGray }}>Cerrada</Typography>
-                                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.successText }}>
-                                        {formatDate(closedAt)}
-                                    </Typography>
-                                </>
-                            )}
                             {order?.status === "Abierta" && (
                                 <>
                                     <Typography sx={{ fontSize: 12, color: C.midGray }}>Programada</Typography>
@@ -124,6 +116,14 @@ export default function WOCard({
                                     <Typography sx={{ fontSize: 11, color: C.midGray }}>En espera desde</Typography>
                                     <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.warningText }}>
                                         {formatDate(order?.initWaitingWorkOrder)}
+                                    </Typography>
+                                </>
+                            )}
+                            {order?.status === "Cerrada" && (
+                                <>
+                                    <Typography sx={{ fontSize: 11, color: C.midGray }}>Cerrada</Typography>
+                                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.successText }}>
+                                        {formatDate(order?.endWorkOrder)}
                                     </Typography>
                                 </>
                             )}
@@ -164,9 +164,25 @@ export default function WOCard({
                             </Typography>
                         </Box>
                     )}
+                    {order?.status === "Cerrada" && (
+                        <Box sx={{
+                            bgcolor: C.successBg,
+                            borderLeft: `2px solid ${C.success}`,
+                            borderRadius: "0 8px 8px 0",
+                            px: 1.25, py: 1, mb: 1.5,
+                        }}>
+                            <Typography sx={{ fontSize: 11, fontWeight: 600, color: C.successText, mb: 0.25 }}>
+                                Diagnóstico
+                            </Typography>
+                            <Typography sx={{ fontSize: 12, color: C.successText, lineHeight: 1.5 }}>
+                                {order?.diagnosis}
+                            </Typography>
+                        </Box>
+                    )}
 
                     <ToggleActionsWorkOrder
                         id={order?._id}
+                        idReq={order?.request?._id}
                         status={order?.status}
                         refresh={handleRefresh}
                     />

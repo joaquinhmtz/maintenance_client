@@ -121,7 +121,7 @@ function TimelineItem({ event, isLast }) {
         Cancelada: C.danger,
         regreso: C.midGray,
         convertida: C.success,
-        default: C.midGray,
+        Cerrada: C.success,
     };
 
     const dotColor = dotColors[event.status] ?? dotColors.default;

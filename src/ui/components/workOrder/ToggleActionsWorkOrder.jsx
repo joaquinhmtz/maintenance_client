@@ -8,15 +8,16 @@ import {
     PlayArrow as PlayIcon,
     PauseCircleOutline as PauseIcon,
     CheckCircleOutline as CheckIcon,
+    Download as DownloadIcon,
 } from "@mui/icons-material";
 import ActionWorkOrder from "./ActionWorkOrder";
 import useNotification from "../../../../hooks/useNotification";
 import workOrderServices from "../../../services/workOrders";
+import requestServices from "../../../services/request";
 
 export default function ToogleActionsWorkOrder({
-    id, status, refresh
+    id, idReq, status, refresh
 }) {
-
     const {
         notification,
         showSuccess,
@@ -38,7 +39,7 @@ export default function ToogleActionsWorkOrder({
             case "start": initOrder(); break;
             case "waiting": initWaiting(id, payload); break;
             case "resume": resumeOrder(id); break;
-            // case "end": onFinalizar?.(_id, payload); break;
+            case "end": closeOrder(id, payload); break;
         }
     };
 
@@ -79,7 +80,7 @@ export default function ToogleActionsWorkOrder({
     const resumeOrder = async (id) => {
         try {
             setSaving(true);
-            console.log("resumeOrder:::",id)
+            console.log("resumeOrder:::", id)
             await workOrderServices.resumeWorkOrder({ _id: id });
 
             refresh(true);
@@ -90,6 +91,35 @@ export default function ToogleActionsWorkOrder({
         } finally {
             setSaving(false);
             setHideActions(false);
+        }
+    }
+
+    const closeOrder = async (id, params) => {
+        try {
+            setSaving(true);
+            console.log("closeOrder:::", id, idReq)
+            await workOrderServices.closeWorkOrder({ _id: id, ...params });
+            await requestServices.closeReq(idReq, params);
+
+            refresh(true);
+
+        } catch (error) {
+            console.error(error);
+            showError(`Hubo un error al reanudar la orden`);
+        } finally {
+            setSaving(false);
+            setHideActions(false);
+        }
+    }
+
+    const Download = async () => {
+        try {
+            
+        } catch (error) {
+            console.error(error);
+            showError(`Hubo un error al descargar la orden`);
+        } finally {
+            setSaving(false);
         }
     }
 
@@ -142,6 +172,17 @@ export default function ToogleActionsWorkOrder({
                         </Button>
                     </>
                 }
+                {status === "Cerrada" &&
+                    <>
+                        <Button size="small" startIcon={<DownloadIcon />}
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => Download()}
+                        >
+                            Descargar
+                        </Button>
+                    </>
+                }
             </Stack>
 
             {/* ── Panel de acción ── */}
@@ -151,6 +192,7 @@ export default function ToogleActionsWorkOrder({
                         type={activePanel}
                         onConfirm={handleConfirm(activePanel)}
                         onCancel={() => { setActivePanel(null); setHideActions(false); }}
+                        otId={id}
                     />
                 )}
             </Collapse>

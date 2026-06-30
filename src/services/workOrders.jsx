@@ -28,6 +28,15 @@ const workOrderServices = {
             throw new Error(message);
         }
     },
+    closeWorkOrder: async (params) => {
+        try {
+            const response = await api.put(`/api/workOrder/v1/close`, params);
+            return response.data;   
+        } catch (error) {
+            const message = error.response?.data?.message || "Error al cerrar la orden";
+            throw new Error(message);
+        }
+    },
     getWorkOrders: async (params) => {
         try {
             const response = await api.get(`/api/workOrders/v1/list`, { params });

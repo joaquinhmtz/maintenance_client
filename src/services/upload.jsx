@@ -9,17 +9,17 @@ import { api } from "./authentication";
  * @param {File[]} params.files
  * @returns {Promise<Array>} - Lista de attachments con su url firmada
  */
-export async function uploadFiles({ modulo, entidadId, categoria, files }) {
-  const formData = new FormData();
-  files.forEach((file) => formData.append("files", file));
+export async function uploadFiles({ module, referencesId, category, files }) {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
 
-  const { data } = await api.post(
-    `/api/uploads/${modulo}/${entidadId}/${categoria}`,
-    formData,
-    { headers: { "Content-Type": "multipart/form-data" } }
-  );
+    const { data } = await api.post(
+        `/api/uploads/${module}/${referencesId}/${category}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+    );
 
-  return data.data;
+    return data.data;
 }
 
 /**
@@ -28,13 +28,18 @@ export async function uploadFiles({ modulo, entidadId, categoria, files }) {
  * así las URLs siempre están vigentes en pantalla.
  */
 export async function getAttachments(modulo, entidadId, categoria) {
-  const { data } = await api.get(`/api/uploads/${modulo}/${entidadId}`, {
-    params: categoria ? { categoria } : {},
-  });
-  return data.data;
+    const { data } = await api.get(`/api/uploads/${modulo}/${entidadId}`, {
+        params: categoria ? { categoria } : {},
+    });
+    return data.data;
 }
 
 export async function deleteAttachment(attachmentId) {
-  const { data } = await api.delete(`/api/uploads/${attachmentId}`);
-  return data;
+    const { data } = await api.delete(`/api/uploads/${attachmentId}`);
+    return data;
+}
+
+export async function GetAttachment(id) {
+    const { data } = await api.get(`/api/files/${id}`);
+    return data.data;
 }

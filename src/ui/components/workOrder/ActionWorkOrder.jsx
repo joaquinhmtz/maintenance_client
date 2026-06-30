@@ -22,8 +22,10 @@ import FileUploadZone from "../common/FileUploadZone";
  * @param {string}   props.otId        - _id de la orden de trabajo (requerido para subir evidencias en "end")
  */
 export default function ActionWorkOrder({ type, onConfirm, onCancel, otId }) {
+    console.log("ActionWorkOrder:::otId:::", otId)
+
     const [descriptionWaiting, setDescriptionWaiting] = useState("");
-    const [diagnostico, setDiagnostico] = useState("");
+    const [diagnosis, setDiagnosis] = useState("");
     const [waitingDescError, setWaitingDescError] = useState(false);
     const [diagError, setDiagError] = useState(false);
     const [evidencias, setEvidencias] = useState([]);
@@ -38,9 +40,9 @@ export default function ActionWorkOrder({ type, onConfirm, onCancel, otId }) {
             if (descriptionWaiting.trim().length < 10) { setWaitingDescError(true); return; }
             onConfirm({ descriptionWaiting });
         } else if (type === "end") {
-            if (diagnostico.trim().length < 20) { setDiagError(true); return; }
+            if (diagnosis.trim().length < 20) { setDiagError(true); return; }
             // Se envían los _id de las evidencias ya subidas al servidor
-            onConfirm({ diagnostico, evidencias: evidencias.map((e) => e._id) });
+            onConfirm({ diagnosis, evidencias: evidencias.map((e) => e._id) });
         } else {
             onConfirm({});
         }
@@ -121,16 +123,16 @@ export default function ActionWorkOrder({ type, onConfirm, onCancel, otId }) {
                             rows={4}
                             fullWidth
                             placeholder="Describe las actividades realizadas, fallas encontradas y solución aplicada..."
-                            value={diagnostico}
+                            value={diagnosis}
                             onChange={(e) => {
-                                setDiagnostico(e.target.value.slice(0, 500));
+                                setDiagnosis(e.target.value.slice(0, 500));
                                 if (e.target.value.trim().length >= 20) setDiagError(false);
                             }}
                             error={diagError}
                             helperText={
                                 diagError
                                     ? "El diagnóstico es requerido (mínimo 20 caracteres)."
-                                    : `${diagnostico.length} / 500`
+                                    : `${diagnosis.length} / 500`
                             }
                             size="small"
                         />
@@ -139,9 +141,9 @@ export default function ActionWorkOrder({ type, onConfirm, onCancel, otId }) {
                     {/* ── Subida de evidencia fotográfica ── */}
                     <FileUploadZone
                         label="Evidencia fotográfica"
-                        modulo="ordenes-trabajo"
-                        entidadId={otId}
-                        categoria="evidencias"
+                        module="workOrders"
+                        referencesId={otId}
+                        category="evidence"
                         multiple
                         capture
                         onUploaded={(files) => setEvidencias(files)}

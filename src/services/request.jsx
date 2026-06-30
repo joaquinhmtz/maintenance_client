@@ -64,6 +64,15 @@ const requestServices = {
             throw new Error(message);
         }
     },
+    closeReq: async (_id, params) => {
+        try {
+            const response = await api.put(`/api/requests/v1/close/${_id}`, params);
+            return response.data;   
+        } catch (error) {
+            const message = error.response?.data?.message || "Error al cerrar solicitud";
+            throw new Error(message);
+        }
+    },
 };
 
 export default requestServices;

@@ -24,7 +24,7 @@ const STATUS_CONFIG = {
         badge: { bgcolor: C.warningBg, color: C.warning, border: "transparent" },
         label: "Pendiente",
     },
-    [STATUS_WO.Cerrada]: {
+    ["Cerrada"]: {
         borderColor: C.success,
         badge: { bgcolor: C.successBg, color: C.successText, border: "transparent" },
         label: "Cerrada",
