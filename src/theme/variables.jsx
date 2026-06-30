@@ -37,13 +37,17 @@ const C = {
     successBg: "#D4EDDA",
     warning: "#FFC107",
     warningBg: "#FFF3CD",
+    warningText: "#92400E",
     danger: "#DC3545",
     dangerBg: "#F8D7DA",
     info: "#17A2B8",
     infoBg: "#D1ECF1",
     neutral: "#E0E0E0",
     neutralBg: "#F5F5F5",
-    extremBg: "#0A0A0A"
+    extremBg: "#0A0A0A",
+
+
+    lightdark: "#f5f4ed"
 };
 
 const APP_NAME = "Mantenimiento";
@@ -100,6 +104,14 @@ const STATUS_REQ = {
     Cancelada: { bgcolor: C.dangerBg, color: C.danger }
 };
 
+const STATUS_WO = {
+    Abierta: { bgcolor: C.neutral, color: C.slate },
+    Proceso: { bgcolor: C.infoBg, color: C.info },
+    Pendiente: { bgcolor: C.extremBg, color: C.white },
+    Cancelada: { bgcolor: C.dangerBg, color: C.danger },
+    Cerrada: { bgcolor: C.successBg, color: C.success }
+};
+
 const AVA_STYLES = {
     G: { bgcolor: C.lav50, color: C.lav700 },
     P: { bgcolor: C.teal50, color: C.teal700 },
@@ -145,5 +157,6 @@ export {
     AREA_CHIP,
     PRIORITIES,
     PRIORITIES_LABEL,
-    STATUS_REQ
+    STATUS_REQ,
+    STATUS_WO
 }

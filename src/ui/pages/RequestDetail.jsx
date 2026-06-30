@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
     Box, Typography, Chip, Button, Divider,
-    Paper, Stack, Tooltip,
+    Paper, Stack, Tooltip, useTheme
 } from "@mui/material";
 import {
     Edit as EditIcon,
@@ -17,6 +17,7 @@ import {
 import { C, PRIORITIES_LABEL } from "../../theme/variables";
 import requestServices from "../../services/request";
 import useNotification from "./../../../hooks/useNotification";
+import ModalScheduleReq from "../components/requests/ModalScheduleReq";
 
 // ─── Sub-componentes ───────────────────────────────────────────────────────
 
@@ -91,7 +92,7 @@ function PrioridadChip({ prioridad }) {
 function StatusChip({ status }) {
     const map = {
         Nueva: { bgcolor: C.offWhite, color: C.darkGray, border: C.lightGray },
-        Programada: { bgcolor: C.infoBg, color: C.infoText, border: "transparent" },
+        Programada: { bgcolor: C.info, color: C.white, border: "transparent" },
         Convertida: { bgcolor: C.successBg, color: C.successText, border: "transparent" },
         Cancelada: { bgcolor: C.dangerBg, color: C.dangerText, border: "transparent" },
     };
@@ -116,13 +117,13 @@ function TimelineItem({ event, isLast }) {
         Nueva: C.slate,
         prioridad: C.danger,
         revision: C.midGray,
-        programada: C.warning,
+        Programada: C.info,
         Cancelada: C.danger,
         regreso: C.midGray,
         convertida: C.success,
         default: C.midGray,
     };
-    
+
     const dotColor = dotColors[event.status] ?? dotColors.default;
 
     return (
@@ -200,11 +201,12 @@ function TimelineItem({ event, isLast }) {
  */
 export default function RequestDetail() {
 
+    const theme = useTheme();
     const navigate = useNavigate();
     const { id } = useParams();
     const { notification, showSuccess, showError, closeNotification } = useNotification();
 
-    const [request, setRequest] = useState({ statusHistory:[] });
+    const [request, setRequest] = useState({ statusHistory: [] });
     const [workOrder, setWorkOrder] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -230,6 +232,13 @@ export default function RequestDetail() {
         }
     };
 
+    const [open, setOpen] = useState(false);
+
+    const handleClose = (params) => {
+        if (params && params.refresh) loadRequest();
+        setOpen(false);
+    };
+
     return (
         <>
             <Box sx={{ bgcolor: C.offWhite, minHeight: "100vh", p: { xs: 2, md: 3 } }}>
@@ -246,7 +255,7 @@ export default function RequestDetail() {
                                 <Button
                                     size="small"
                                     startIcon={<BackIcon />}
-                                    onClick={()=>navigate("/requests")}
+                                    onClick={() => navigate("/requests")}
                                     sx={{ color: C.midGray, minWidth: 0, p: 0.5, mr: 0.5 }}
                                 />
                             </Tooltip>
@@ -268,7 +277,7 @@ export default function RequestDetail() {
                                 size="small"
                                 variant="outlined"
                                 startIcon={<EditIcon />}
-                                onClick={()=>navigate(`/requests/edit/${request._id}`)}
+                                onClick={() => navigate(`/requests/edit/${request._id}`)}
                                 sx={{
                                     borderColor: C.lightGray, color: C.darkGray,
                                     fontSize: 12, textTransform: "none",
@@ -284,7 +293,7 @@ export default function RequestDetail() {
                                 size="small"
                                 variant="contained"
                                 startIcon={<CalendarIcon />}
-                                // onClick={onProgramar}
+                                onClick={() => setOpen(true)}
                             >
                                 Programar
                             </Button>
@@ -354,6 +363,16 @@ export default function RequestDetail() {
                             </Box>
                         </SectionCard>
 
+                        {/* Programación */}
+                        {request?.status === "Programada" ? (
+                            <SectionCard icon={<CalendarIcon fontSize="small" />} title="Programación">
+                                <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1.5 }}>
+                                    <FieldRO label="Fecha visita">{new Date(request?.visitDate).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" }) ?? "—"}</FieldRO>
+                                    <FieldRO label="Responsable visita">{request?.visitManager?.fullname ?? "—"}</FieldRO>
+                                </Box>
+                            </SectionCard>
+                        ):null}
+
                     </Stack>
 
                     {/* Columna derecha */}
@@ -391,9 +410,9 @@ export default function RequestDetail() {
                             <Divider sx={{ borderColor: C.lightGray }} />
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", py: 0.75 }}>
                                 <Typography sx={{ fontSize: 12, color: C.midGray }}>OT generada</Typography>
-                                {workOrder ? (
-                                    <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.infoText }}>
-                                        {workOrder.folio || '-'}
+                                {request?.workOrder ? (
+                                    <Typography sx={{ fontSize: 12, fontWeight: 600, color: C.success }}>
+                                        {request?.workOrder.folio || '-'}
                                     </Typography>
                                 ) : (
                                     <Typography sx={{ fontSize: 12, color: C.midGray }}>—</Typography>
@@ -419,6 +438,18 @@ export default function RequestDetail() {
                     </Stack>
                 </Box>
             </Box>
+
+
+            {/* Form de programación */}
+            <ModalScheduleReq
+                open={open}
+                onClose={handleClose}
+                theme={theme}
+                idReq={request?._id}
+                folio={request?.folio}
+                item={request?.item}
+                hospital={request?.hospital}
+            />
         </>
     );
 }

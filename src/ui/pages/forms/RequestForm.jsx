@@ -105,7 +105,7 @@ export default function RequestForm({ isEdit = false }) {
                 status: item.status ?? item.status ?? "",
                 action: "actualizar",
             });
-            console.log("control**")
+
         } catch (err) {
             console.error("Error al cargar la solicitud:", err);
             showError("No se pudo cargar la información de la solicitud");
@@ -146,12 +146,10 @@ export default function RequestForm({ isEdit = false }) {
     const onSubmit = async (data) => {
         try {
             setSaving(true);
-            console.log(data)
+
             if (isEdit && action === "actualizar") {
                 await requestServices.updateReq(id, data);
                 showSuccess("La solicitud actualizada correctamente");
-            } else if (isEdit && action === "programar") {
-                await requestServices.scheduleReq(id, data);
             } else {
                 await requestServices.saveReq(data);
                 showSuccess("La solicitud registrada correctamente");
@@ -166,19 +164,7 @@ export default function RequestForm({ isEdit = false }) {
             setSaving(false);
         }
     };
-
-    const handleToggleAction = () => {
-        const next = !changePassword;
-        setChangePassword(next);
-        setValue("changePassword", next);
-        if (!next) {
-            setValue("password", "");
-            setValue("confirmPassword", "");
-            setShowPwd(false);
-            setShowCPwd(false);
-        }
-    };
-
+    
     return (
         <>
             <PageHeader
@@ -374,70 +360,6 @@ export default function RequestForm({ isEdit = false }) {
                                     </Grid>
                                 </Grid>
 
-                                {status === "Nueva" ? (
-                                    <>
-                                        <SectionLabel icon={<CalendarIcon />}>Programación</SectionLabel>
-                                        <Grid container spacing={2} style={{ marginTop: 8, marginBottom: 16 }}>
-                                            <Grid item xs={12} md={4}>
-                                                <Controller
-                                                    name="visitDate"
-                                                    control={control}
-                                                    render={({ field }) => (
-                                                        <TextField
-                                                            {...field}
-                                                            label="Fecha de visita"
-                                                            type="date"
-                                                            fullWidth
-                                                            size="small"
-                                                            error={!!errors.visitDate}
-                                                            helperText={errors.visitDate?.message}
-                                                            InputLabelProps={{ shrink: true }}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12} md={4}>
-                                                <Controller
-                                                    name="visitManager"
-                                                    control={control}
-                                                    render={({ field }) => (
-                                                        <FormControl fullWidth size="small" error={!!errors.visitManager}>
-                                                            <InputLabel>Responsable visita</InputLabel>
-                                                            <Select
-                                                                {...field}
-                                                                label="Responsable visita"
-                                                                renderValue={(selected) => {
-                                                                    const responsible = responsibles.find(
-                                                                        x => x._id === selected
-                                                                    );
-
-                                                                    return responsible?.fullname || "";
-                                                                }}
-                                                            >
-                                                                {responsibles.map(item => (
-                                                                    <MenuItem key={item._id} value={item._id}>
-                                                                        <div style={{ display: "flex", flexDirection: "column" }}>
-                                                                            <strong style={{ fontSize: 13 }}>
-                                                                                {item.fullname}
-                                                                            </strong>
-                                                                            <span style={{ fontSize: 12, color: "#666" }}>
-                                                                                {item.profile}
-                                                                            </span>
-                                                                        </div>
-                                                                    </MenuItem>
-                                                                ))}
-                                                            </Select>
-                                                            <FormHelperText>
-                                                                {errors.visitManager?.message}
-                                                            </FormHelperText>
-                                                        </FormControl>
-                                                    )}
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </>
-                                ) : null}
-
                                 <Divider />
 
                                 <CardActions sx={{ justifyContent: "flex-end", px: 2, pb: 2 }}>
@@ -458,21 +380,6 @@ export default function RequestForm({ isEdit = false }) {
                                     >
                                         {isEdit ? "Actualizar" : "Guardar"}
                                     </Button>
-                                    {status === "Nueva" ? (
-                                        <Button
-                                            color="secondary"
-                                            form="user-form"
-                                            variant="outlined"
-                                            disabled={saving || isSubmitting || loading}
-                                            startIcon={saving ? <CircularProgress size={14} color="inherit" /> : null}
-                                            onClick={() => {
-                                                setValue("action", "programar"); // 👈 setea la acción
-                                                handleSubmit(onSubmit)();         // 👈 dispara el submit manualmente
-                                            }}
-                                        >
-                                            Programar
-                                        </Button>
-                                    ) : null}
                                 </CardActions>
 
                             </form>

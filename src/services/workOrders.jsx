@@ -1,39 +1,48 @@
 import { api } from "./authentication";
 
-const requestServices = {
-    saveReq: async (params) => {
+const workOrderServices = {
+    initWorkOrder: async (params) => {
         try {
-            const response = await api.post(`/api/requests/v1/save`, params);
+            const response = await api.put(`/api/workOrder/v1/init`, params);
             return response.data;   
         } catch (error) {
-            const message = error.response?.data?.message || "Error al guardar la solicitud";
+            const message = error.response?.data?.message || "Error al iniciar la orden";
             throw new Error(message);
         }
     },
-    checkSerieExists: async (serie) => {
+    initWaitingWorkOrder: async (params) => {
         try {
-            const response = await api.get(`/api/items/v1/check-serie/${serie}`);
+            const response = await api.put(`/api/workOrder/v1/waiting`, params);
             return response.data;   
         } catch (error) {
-            const message = error.response?.data?.message || "Error al validar el no. serie";
+            const message = error.response?.data?.message || "Error al poner en espera la orden";
             throw new Error(message);
         }
     },
-    getRequests: async (params) => {
+    resumeWorkOrder: async (params) => {
         try {
-            const response = await api.get(`/api/requests/v1/list`, { params });
-            return response.data;
+            const response = await api.put(`/api/workOrder/v1/resume`, params);
+            return response.data;   
         } catch (error) {
-            const message = error.response?.data?.message || "Error al obtener las solicitudes";
+            const message = error.response?.data?.message || "Error al reanudar la orden";
             throw new Error(message);
         }
     },
-    getCountRequests: async (params) => {
+    getWorkOrders: async (params) => {
         try {
-            const response = await api.get(`/api/requests/v1/count`, { params });
+            const response = await api.get(`/api/workOrders/v1/list`, { params });
             return response.data;
         } catch (error) {
-            const message = error.response?.data?.message || "Error al obtener el total de solicitudes";
+            const message = error.response?.data?.message || "Error al obtener las ordenes";
+            throw new Error(message);
+        }
+    },
+    getCountWorkOrders: async (params) => {
+        try {
+            const response = await api.get(`/api/workOrders/v1/count`, { params });
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || "Error al obtener el total de ordenes";
             throw new Error(message);
         }
     },
@@ -66,4 +75,4 @@ const requestServices = {
     },
 };
 
-export default requestServices;
+export default workOrderServices;
