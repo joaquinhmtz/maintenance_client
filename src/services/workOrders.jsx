@@ -66,6 +66,15 @@ const workOrderServices = {
             throw new Error(message);
         }
     },
+    calendarWorkOrders: async (params) => {
+        try {
+            const response = await api.get(`/api/calendar/v1/orders`, { params });
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || "Error al obtener las ordenes del calendario";
+            throw new Error(message);
+        }
+    },
 };
 
 export default workOrderServices;

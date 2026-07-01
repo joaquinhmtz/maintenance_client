@@ -47,7 +47,17 @@ const C = {
     extremBg: "#0A0A0A",
 
 
-    lightdark: "#f5f4ed"
+    lightdark: "#f5f4ed",
+
+    // Chips colors
+    correctiveBg: "#faece7",
+    corrective: "#712b13",
+    preventiveBg: "#E0F2F1",
+    preventive: "#00695C",
+    defeatedBg: "#F8D7DA",
+    defeated: "#DC3545",
+    
+    
 };
 
 const APP_NAME = "Mantenimiento";
@@ -56,24 +66,24 @@ const APP_ABV_NAME = "Mtm";
 const MENU_SECTIONS = [
     {
         items: [
-            { key: "dashboard", label: "Dashboard",   icon: <DashboardIcon />, path: "/dashboard" },
-            // { key: "tratamientos", label: "Tratamientos", icon: <MedicalIcon />, path: "/tratamientos" },
+            { key: "dashboard", label: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
             // { key: "expedientes",  label: "Expedientes",  icon: <DescriptionIcon />, path: "/expedientes" },
         ],
     },
     {
         subheader: "Mantenimiento",
         items: [
-            { key: "request", label: "Solicitudes",   icon: <WorkOrderIcon />, path: "/requests" },
-            { key: "work-orders",  label: "Ordenes",  icon: <DescriptionIcon />, path: "/work-orders" },
+            { key: "calendar", label: "Calendario", icon: <CalendarIcon />, path: "/calendar" },
+            { key: "request", label: "Solicitudes", icon: <WorkOrderIcon />, path: "/requests" },
+            { key: "work-orders", label: "Ordenes", icon: <DescriptionIcon />, path: "/work-orders" },
         ],
     },
     {
         subheader: "Administración",
         items: [
-            { key: "hospitals", label: "Hospitales", icon: <HospitalIcon />,     path: "/hospitals" },
-            { key: "items", label: "Equipos", icon: <InventoryIcon />,     path: "/items" },
-            { key: "users",  label: "Usuarios",   icon: <PeopleIcon />, path: "/users" },
+            { key: "hospitals", label: "Hospitales", icon: <HospitalIcon />, path: "/hospitals" },
+            { key: "items", label: "Equipos", icon: <InventoryIcon />, path: "/items" },
+            { key: "users", label: "Usuarios", icon: <PeopleIcon />, path: "/users" },
             // { key: "finanzas", label: "Finanzas", icon: <MoneyIcon />, path: "/finanzas" },
         ],
     },
@@ -135,6 +145,14 @@ const STATUS = {
     Pendiente: { dot: C.warning, label: "Pendiente" },
     Inactivo: { dot: C.danger, label: "Inactivo" },
 };
+const TYPES_CHIPS = {
+    TYPE_SERVICES: {
+        CORRECTIVO: { dot: C.corrective, label: "Correctivo", bgcolor: C.correctiveBg, color: C.corrective },
+        PREVENTIVO: { dot: C.preventive, label: "Preventivo", bgcolor: C.preventiveBg, color: C.preventive },
+        VENCIDO: { dot: C.defeated, label: "Vencida", bgcolor: C.defeatedBg, color: C.defeated }
+    },
+}
+
 const PATH_TO_KEY = MENU_SECTIONS.flatMap(s => s.items)
     .reduce((acc, item) => ({ ...acc, [item.path]: item.key }), {});
 
@@ -158,5 +176,6 @@ export {
     PRIORITIES,
     PRIORITIES_LABEL,
     STATUS_REQ,
-    STATUS_WO
+    STATUS_WO,
+    TYPES_CHIPS
 }
