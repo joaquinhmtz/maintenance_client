@@ -57,7 +57,16 @@ const C = {
     defeatedBg: "#F8D7DA",
     defeated: "#DC3545",
     
-    
+    //Chips status
+    purpleChipBg: "#f1e9fa",
+    purpleChip: "#5b2d91",
+    blueChipBg: "#e6f0fb",
+    blueChip: "#1d4d8f",
+    yellowChipBg: "#fdf6df",
+    yellowChip: "#8a6d1a",
+    greenChipBg: "#eaf3de",
+    greenChip: "#27500a"
+
 };
 
 const APP_NAME = "Mantenimiento";
@@ -149,8 +158,20 @@ const TYPES_CHIPS = {
     TYPE_SERVICES: {
         CORRECTIVO: { dot: C.corrective, label: "Correctivo", bgcolor: C.correctiveBg, color: C.corrective },
         PREVENTIVO: { dot: C.preventive, label: "Preventivo", bgcolor: C.preventiveBg, color: C.preventive },
-        VENCIDO: { dot: C.defeated, label: "Vencida", bgcolor: C.defeatedBg, color: C.defeated }
+        VENCIDO: { label: "Vencida", bgcolor: C.defeatedBg, color: C.defeated }
     },
+    STATUS_WORK_ORDERS: {
+        ABIERTA: { label: "Abierta", subLabel: "Programada", bgcolor: C.purpleChip, color: C.white },
+        "EN PROCESO": { label: "En proceso", subLabel: "Iniciada", bgcolor: C.blueChip, color: C.white },
+        PENDIENTE: { label: "Pendiente", subLabel: "En espera desde", bgcolor: C.yellowChip, color: C.white },
+        CANCELADA: { label: "Cancelada", subLabel: "", bgcolor: C.defeated, color: C.white },
+        CERRADA: { label: "Cerrada", subLabel: "", bgcolor: C.greenChip, color: C.white }
+    },
+    PRIORITIES: {
+        HIGH: { dot: C.defeated, label: "Alta", bgcolor: C.defeatedBg, color: C.defeated },
+        MEDIUM: { dot: C.yellowChip, label: "Media", bgcolor: C.yellowChipBg, color: C.yellowChip },
+        LOW: { dot: C.success, label: "Baja", bgcolor: C.successBg, color: C.success }
+    }
 }
 
 const PATH_TO_KEY = MENU_SECTIONS.flatMap(s => s.items)

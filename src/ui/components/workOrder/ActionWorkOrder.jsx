@@ -22,7 +22,6 @@ import FileUploadZone from "../common/FileUploadZone";
  * @param {string}   props.otId        - _id de la orden de trabajo (requerido para subir evidencias en "end")
  */
 export default function ActionWorkOrder({ type, onConfirm, onCancel, otId }) {
-    console.log("ActionWorkOrder:::otId:::", otId)
 
     const [descriptionWaiting, setDescriptionWaiting] = useState("");
     const [diagnosis, setDiagnosis] = useState("");

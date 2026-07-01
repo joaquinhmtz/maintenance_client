@@ -6,14 +6,10 @@ import { TYPES_CHIPS } from "./../../../theme/variables";
 
 export default function ChipLabel ({ 
     typeChip, chip,
-    size = "small"
+    size = "small",
+    subLabel = false
 }) {
 
-    // const map = {
-    //     Alta: { bgcolor: C.dangerBg, color: C.dangerText, dot: C.danger },
-    //     Media: { bgcolor: C.warningBg, color: C.warningText, dot: C.warning },
-    //     Baja: { bgcolor: C.successBg, color: C.successText, dot: C.success },
-    // };
     const map = TYPES_CHIPS[typeChip];
     const styleConfig = map[chip];
 
@@ -22,7 +18,7 @@ export default function ChipLabel ({
             <Chip
                 component="span"
                 size={size}
-                label={styleConfig.label}
+                label={subLabel ? styleConfig.subLabel : styleConfig.label}
                 icon={styleConfig.dot && (
                     <Box
                         component="span"

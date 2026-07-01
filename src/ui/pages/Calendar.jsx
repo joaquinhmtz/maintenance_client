@@ -16,6 +16,7 @@ import PageHeader from "./../components/common/pageHeader";
 import ChipLabel from "./../components/common/ChipLabel";
 import KpisCalendar from "./../components/workOrder/KpisCalendar";
 import MonthProgressBar from "./../components/workOrder/MonthProgressBar";
+import DayWorkOrdersModal from "./../components/workOrder/DayWorkOrdersModal";
 import { TYPES_CHIPS } from "./../../theme/variables";
 import { getOverdueDatesSet, getMonthProgress, toLocalDateStr } from "./../../../utils/calendar.helper";
 
@@ -43,6 +44,9 @@ export default function Calendar() {
 
   const overdueDates = useMemo(() => getOverdueDatesSet(appointments), [appointments]);
   const monthProgress = useMemo(() => getMonthProgress(appointments), [appointments]);
+
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dayModalOpen, setDayModalOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -77,18 +81,20 @@ export default function Calendar() {
     };
   });
 
-  const handleDateClick = (info) => {
-    // Abrir modal
-    // setSelectedDate(info.dateStr);
-    // setOpenAppointmentModal(true);
+  const ordersForSelectedDate = useMemo(() => {
+    if (!selectedDate) return [];
+    const targetStr = toLocalDateStr(selectedDate);
+    return events.filter(ev => toLocalDateStr(ev.start) === targetStr);
+  }, [selectedDate, events]);
 
-    console.log("Nueva cita:", info.dateStr);
+  const handleDateClick = (info) => {
+    setSelectedDate(info.date);
+    setDayModalOpen(true);
   };
 
   const handleEventClick = (info) => {
-    console.log(info.event);
-
-    alert(`Paciente: ${info.event.title}`);
+    setSelectedDate(info.event.start);
+    setDayModalOpen(true);
   };
 
   const handleDatesSet = (info) => {
@@ -225,6 +231,15 @@ export default function Calendar() {
           </Box>
         </CardContent>
       </Card>
+
+      <DayWorkOrdersModal
+        open={dayModalOpen}
+        onClose={() => setDayModalOpen(false)}
+        date={selectedDate}
+        orders={ordersForSelectedDate}
+        // onViewDetail={handleViewDetail}
+      />
+
     </>
   );
 }

@@ -5,37 +5,9 @@ import {
     Chip
 } from "@mui/material";
 import { C } from "./../../../theme/variables";
-import { STATUS_CONFIG, PRIORITIES, PRIORITIES_LABEL, STATUS_WO } from "./../../../theme/configs/workOrderConfig";
+import { TYPES_CHIPS } from "./../../../theme/variables";
 import ToggleActionsWorkOrder from "./ToggleActionsWorkOrder";
-
-function StatusBadge({ status }) {
-    const cfg = STATUS_CONFIG[status];
-    if (!cfg) return null;
-    return (
-        <Chip
-            size="small"
-            label={cfg.label}
-            sx={{
-                bgcolor: cfg.badge.bgcolor,
-                color: cfg.badge.color,
-                border: `0.5px solid ${cfg.badge.border}`,
-                fontSize: 11, fontWeight: 500, height: 22,
-                fontWeight: 600
-            }}
-        />
-    );
-}
-
-function PriorityBadge({ priority }) {
-    const cfg = PRIORITIES[priority];
-    return (
-        <Chip
-            size="small"
-            label={PRIORITIES_LABEL[priority]}
-            sx={{ bgcolor: cfg.bgcolor, color: cfg.color, fontSize: 11, fontWeight: 500, height: 22 }}
-        />
-    );
-}
+import ChipLabel from "./../common/ChipLabel";
 
 function formatDate(iso) {
     return new Date(iso).toLocaleDateString("es-MX", {
@@ -58,15 +30,15 @@ export default function WOCard({
     order = null,
     handleRefresh
 }) {
-    const cfg = STATUS_CONFIG[order?.status];
+    const cfg = TYPES_CHIPS["STATUS_WORK_ORDERS"][order?.status.toUpperCase()];
 
     return (
         <>
             <Box sx={{
                 bgcolor: C.white,
                 border: `0.5px solid ${C.lightGray}`,
-                borderLeft: `3px solid ${cfg?.borderColor ?? C.midGray}`,
-                borderRadius: 1.3,
+                borderLeft: `4px solid ${cfg?.bgcolor ?? C.midGray}`,
+                borderRadius: 0.5,
                 overflow: "hidden",
             }}>
 
@@ -80,20 +52,15 @@ export default function WOCard({
                                 {order?.folio}
                             </Typography>
                             <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-                                <StatusBadge status={order?.status} />
-                                <PriorityBadge priority={order?.request?.priority} />
-                                <Chip
-                                    size="small"
-                                    label={order?.typeService?.name}
-                                    sx={{ bgcolor: C.offWhite, color: C.darkGray, border: `0.5px solid ${C.lightGray}`, fontSize: 11, height: 22 }}
-                                />
+                                <ChipLabel typeChip={"PRIORITIES"} chip={order?.request?.priority.toUpperCase()} />
+                                <ChipLabel typeChip={"TYPE_SERVICES"} chip={order?.typeService?.name.toUpperCase()} />
                             </Stack>
                         </Box>
 
                         <Box sx={{ textAlign: "right", flexShrink: 0 }}>
                             {order?.status === "Abierta" && (
                                 <>
-                                    <Typography sx={{ fontSize: 12, color: C.midGray }}>Programada</Typography>
+                                    <ChipLabel typeChip={"STATUS_WORK_ORDERS"} chip={order?.status.toUpperCase()} subLabel={true} />
                                     <Typography sx={{ fontSize: 12, fontWeight: 600, color: C.darkGray }}>
                                         {/* el color de este texto deberá ir de acuerdo al color del estatus */}
                                         {formatDate(order?.visitDate)}
@@ -102,7 +69,7 @@ export default function WOCard({
                             )}
                             {order?.status === "En proceso" && (
                                 <>
-                                    <Typography sx={{ fontSize: 11, color: C.midGray }}>Iniciada</Typography>
+                                    <ChipLabel typeChip={"STATUS_WORK_ORDERS"} chip={order?.status.toUpperCase()} subLabel={true} />
                                     <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.infoText }}>
                                         {formatDate(order?.initWorkOrder)}
                                     </Typography>
@@ -113,7 +80,7 @@ export default function WOCard({
                             )}
                             {order?.status === "Pendiente" && (
                                 <>
-                                    <Typography sx={{ fontSize: 11, color: C.midGray }}>En espera desde</Typography>
+                                    <ChipLabel typeChip={"STATUS_WORK_ORDERS"} chip={order?.status.toUpperCase()} subLabel={true} />
                                     <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.warningText }}>
                                         {formatDate(order?.initWaitingWorkOrder)}
                                     </Typography>
@@ -121,7 +88,7 @@ export default function WOCard({
                             )}
                             {order?.status === "Cerrada" && (
                                 <>
-                                    <Typography sx={{ fontSize: 11, color: C.midGray }}>Cerrada</Typography>
+                                    <ChipLabel typeChip={"STATUS_WORK_ORDERS"} chip={order?.status.toUpperCase()} />
                                     <Typography sx={{ fontSize: 12, fontWeight: 500, color: C.successText }}>
                                         {formatDate(order?.endWorkOrder)}
                                     </Typography>
