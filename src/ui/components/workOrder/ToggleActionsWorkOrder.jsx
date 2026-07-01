@@ -115,7 +115,20 @@ export default function ToogleActionsWorkOrder({
     const Download = async () => {
         try {
             setSaving(true);
-            await workOrderServices.pdfWorkOrder(id);
+            const pdf = await workOrderServices.pdfWorkOrder(id);
+
+            const url = window.URL.createObjectURL(pdf);
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Orden-${id}.pdf`;
+
+            document.body.appendChild(link);
+            link.click();
+
+            link.remove();
+            window.URL.revokeObjectURL(url);
+
         } catch (error) {
             console.error(error);
             showError(`Hubo un error al descargar la orden`);

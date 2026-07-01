@@ -57,7 +57,9 @@ const workOrderServices = {
     },
     pdfWorkOrder: async (_id) => {
         try {
-            const response = await api.get(`/api/workOrder/v1/pdf/${_id}`);
+            const response = await api.get(`/api/workOrder/v1/pdf/${_id}`, {
+                responseType: "blob",
+            });
             return response.data;
         } catch (error) {
             const message = error.response?.data?.message || "Error al descargar pdf de la orden";

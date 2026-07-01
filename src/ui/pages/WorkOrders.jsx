@@ -6,6 +6,8 @@ import {
 } from "@mui/material";
 
 import PageHeader from "../components/common/pageHeader";
+import FilterWorkOrder from "./../components/workOrder/FilterWorkOrder";
+import PaginationCmp from '../components/common/pagination';
 import WOCard from '../components/workOrder/WOCard';
 import workOrderServices from '../../services/workOrders';
 import useNotification from "./../../../hooks/useNotification";
@@ -60,8 +62,12 @@ export default function WorkOrders() {
   }
 
   const handleRefresh = (refresh) => {
-    console.log("refresh**", refresh);
     if (refresh) setFilters({ search: "" });
+  }
+
+  const handleSetFilters = (params) => {
+    setFilters(params);
+    setPagination(prev => ({ ...prev, page: 1 }));
   }
 
   return (
@@ -69,6 +75,12 @@ export default function WorkOrders() {
       <PageHeader
         title="Ordenes de trabajo"
         subtitle="Resumen de hoy - lunes 01 de junio 2026"
+      />
+
+      {/* Filtros de búsqueda */}
+      <FilterWorkOrder
+        filters={filters}
+        setFilters={handleSetFilters}
       />
 
       <Grid item xs={12}>
@@ -89,20 +101,19 @@ export default function WorkOrders() {
               key={row._id}
               order={row}
               handleRefresh={handleRefresh}
-              // onIniciar={handleIniciar}
-              // onEspera={handleEspera}
-              // onReanudar={handleReanudar}
-              // onFinalizar={handleFinalizar}
-              // onVerDetalle={(id) => { 
-              //   navigate(`/work-orders/${id}`)
-              // }}
-              // onDescargar={(id) => { 
-              //   descargar reporte
-              // }}
             />
           ))}
         </Box>
       </Grid>
+
+      {/* Paginación */}
+      <PaginationCmp
+        pagination={pagination}
+        setPagination={setPagination}
+        limit={pagination.limit}
+        total={total}
+        table={"ordenes"}
+      />
     </>
   );
 }
