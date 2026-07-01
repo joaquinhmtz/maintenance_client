@@ -55,30 +55,12 @@ const workOrderServices = {
             throw new Error(message);
         }
     },
-    getReqById: async (_id) => {
+    pdfWorkOrder: async (_id) => {
         try {
-            const response = await api.get(`/api/requests/v1/get/${_id}`);
+            const response = await api.get(`/api/workOrder/v1/pdf/${_id}`);
             return response.data;
         } catch (error) {
-            const message = error.response?.data?.message || "Error al obtener la solicitud";
-            throw new Error(message);
-        }
-    },
-    updateReq: async (_id, params) => {
-        try {
-            const response = await api.put(`/api/requests/v1/update/${_id}`, params);
-            return response.data;   
-        } catch (error) {
-            const message = error.response?.data?.message || "Error al actualizar el equipo";
-            throw new Error(message);
-        }
-    },
-    scheduleReq: async (_id, params) => {
-        try {
-            const response = await api.put(`/api/requests/v1/scheduleReq/${_id}`, params);
-            return response.data;   
-        } catch (error) {
-            const message = error.response?.data?.message || "Error al programar solicitud";
+            const message = error.response?.data?.message || "Error al descargar pdf de la orden";
             throw new Error(message);
         }
     },

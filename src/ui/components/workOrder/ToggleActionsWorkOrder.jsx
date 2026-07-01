@@ -114,7 +114,8 @@ export default function ToogleActionsWorkOrder({
 
     const Download = async () => {
         try {
-            
+            setSaving(true);
+            await workOrderServices.pdfWorkOrder(id);
         } catch (error) {
             console.error(error);
             showError(`Hubo un error al descargar la orden`);
@@ -175,6 +176,7 @@ export default function ToogleActionsWorkOrder({
                 {status === "Cerrada" &&
                     <>
                         <Button size="small" startIcon={<DownloadIcon />}
+                            disabled={loading}
                             variant="outlined"
                             color="secondary"
                             onClick={() => Download()}
